@@ -1,6 +1,6 @@
 # Docker Compose Setup for Media Management Tools
 
-This repository contains a `docker-compose.yaml` configuration that sets up a complete media management stack including a VPN client (**Gluetun**), torrent client (**qBittorrent**), and several Servarr applications (**Sonarr**, **Radarr**, **Prowlarr**, **FlareSolverr**), along with **Jellyseerr**, **SABnzbd**, and **Watchtower** for automatic updates.
+This repository contains a `docker-compose.yaml` configuration that sets up a complete media management stack including a VPN client (**Gluetun**), torrent client (**qBittorrent**), and several Servarr applications (**Sonarr**, **Radarr**, **Prowlarr**, **FlareSolverr**), along with **Jellyseerr**, **SABnzbd**, and **Soon** for automatic updates.
 
 ---
 
