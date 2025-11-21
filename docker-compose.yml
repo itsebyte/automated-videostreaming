@@ -1,0 +1,160 @@
+services:
+# ----- Gluetun ----- #
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    restart: unless-stopped
+    cap_add:
+    - NET_ADMIN
+    devices:
+    - /dev/net/tun:/dev/net/tun
+    environment:
+    - TZ=${TZ}
+    - VPN_SERVICE_PROVIDER=airvpn
+    - VPN_TYPE=wireguard
+    - WIREGUARD_PRIVATE_KEY=${WG_PRIVATE_KEY}
+    - WIREGUARD_PRESHARED_KEY=${WG_PSK}
+    - WIREGUARD_ADDRESSES=${WG_ADDRESS}
+    - SERVER_COUNTRIES=${WG_SERVER_COUNTRY}
+    - FIREWALL=on
+    - FIREWALL_VPN_INPUT_PORTS=${VPN_TORRENT_PORT}
+    - DOT=on
+    volumes:
+    - ./gluetun:/gluetun
+    ports:
+    - ${QBIT_WEBUI_PORT}:${QBIT_WEBUI_PORT}
+    - ${SABNZBD_PORT}:${SABNZBD_PORT}
+
+# ----- Download-Clients ----- #
+# ----- qBittorent ----- #
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    network_mode: service:gluetun
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    environment:
+    - PUID=1000
+    - PGID=1000
+    - TZ=${TZ}
+    - WEBUI_PORT=${QBIT_WEBUI_PORT}
+    volumes:
+    - ./qbittorrent/config:/config
+    - ./downloads:/downloads
+
+# ----- SABndbd ----- #
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    restart: unless-stopped
+    network_mode: service:gluetun
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    environment:
+    - PUID=1000
+    - PGID=1000
+    - TZ=${TZ}
+    volumes:
+    - ./sabnzbd/config:/config
+    - ./downloads:/downloads
+
+# ----- Servarr Media Management ----- #
+# ----- Sonarr ----- #
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    restart: unless-stopped
+    container_name: sonarr
+    depends_on:
+    - qbittorrent
+    environment:
+    - PUID=1000
+    - PGID=1000
+    - TZ=${TZ}
+    volumes:
+    - ./sonarr/config:/config
+    - ./downloads:/downloads
+    - ./media/series:/tv
+    ports:
+    - ${SONARR_WEBUI_PORT}:8989
+
+# ----- Radarr ----- #
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    depends_on:
+    - qbittorrent
+    environment:
+    - PUID=1000
+    - PGID=1000
+    - TZ=${TZ}
+    volumes:
+    - ./radarr/config:/config
+    - ./downloads:/downloads
+    - ./media/movies:/movies
+    ports:
+    - ${RADARR_WEBUI_PORT}:7878
+    
+# ----- Flaresolverr ----- #
+  flaresolverr:
+    image: flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    restart: unless-stopped
+    depends_on:
+    - sonarr
+    - radarr
+    environment:
+    - PUID=1000
+    - PGID=1000
+    - LOG_LEVEL=info
+    - TZ=${TZ}
+    ports:
+    - ${FLARESOLVER_WEBUI_PORT}:8191
+
+# ----- Prowlarr ----- #
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    restart: unless-stopped
+    depends_on:
+    - qbittorrent
+    - sabnzbd
+    - sonarr
+    - radarr
+    - flaresolverr
+    environment:
+    - PUID=1000
+    - PGID=1000
+    - TZ=${TZ}
+    volumes:
+    - ./prowlarr/config:/config
+    ports:
+    - ${PROWLARR_WEBUI_PORT}:9696
+    dns:
+    - 1.1.1.1
+    - 8.8.8.8
+
+# ----- Jellyseerr ----- #
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    restart: unless-stopped
+    depends_on:
+    - sonarr
+    - radarr
+    environment:
+    - PUID=1000
+    - PGID=1000
+    - LOG_LEVEL=info
+    - TZ=${TZ}
+    volumes:
+    - ./jellyseerr/config:/app/config
+    ports:
+    - ${JELLYSEERR_WEBUI_PORT}:5055
+
+networks:
+  default:
+    name: arrnet
