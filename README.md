@@ -22,7 +22,7 @@ All services are orchestrated using **Docker Compose** for easy deployment and m
 | [**Radarr**](https://github.com/Radarr/Radarr) | Movie management tool for automatic film downloads. |
 | [**FlareSolverr**](https://github.com/FlareSolverr/FlareSolverr) | Service that bypasses bot and Cloudflare protection. |
 | [**Prowlarr**](https://github.com/Prowlarr/Prowlarr) | Indexer manager for Sonarr and Radarr. |
-| [**Jellyseerr**](https://github.com/seerr-team/seerr) | Web interface for managing requests to Sonarr/Radarr. |
+| [**Seerr**](https://github.com/seerr-team/seerr) | Web interface for managing requests to Sonarr/Radarr. |
 | [**Soon**]() | Automatically updates Docker containers. |
 
 ---
