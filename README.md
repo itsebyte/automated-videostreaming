@@ -41,6 +41,8 @@ Clone the repository (for example, into `/opt/`):
 cd /opt
 git clone https://github.com/itsebyte/automated-videostreaming
 cd automated-videostreaming
+mkdir seerr
+chown -R 1000:1000 seerr/
 docker compose pull
 ```
 
