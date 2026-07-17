@@ -75,7 +75,7 @@ Edit `.env` and set at least the AirVPN / WireGuard values:
 # --- AirVPN ---
 WG_PRIVATE_KEY=<your-wireguard-private-key>
 WG_PSK=<your-preshared-key>
-WG_ADDRESS=10.5.79.2/32        # full address incl. subnet — not just /32
+WG_ADDRESS=(Address)/32        # full address
 WG_SERVER_COUNTRY=Netherlands
 ```
 
